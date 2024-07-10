@@ -25,9 +25,6 @@ def get_working_directory(client_socket):
     return cwd
 
 # handling command functions from reverse shell
-
-
-
 def handle_command(client_socket, cwd):
     while True:
         command = input(f"{cwd} $> ").strip()
