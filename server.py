@@ -1,13 +1,13 @@
 import socket
 
-# initialization of variables
+# initialize variables
 SERVER_HOST = "0.0.0.0" # targets all IPv4 addresseses on local machine
 SERVER_PORT = 5003 #ephermal port number but we should use 80 or 443 as these are popularly opened
 BUFFER_SIZE = 10224 * 128
 SEPARATOR = "<sep>"
 
 
-# creating socket functions
+# create socket object
 def initialize_socket():
     new_socket = socket.socket()
     new_socket.bind((SERVER_HOST, SERVER_PORT))
