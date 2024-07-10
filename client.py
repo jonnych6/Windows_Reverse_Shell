@@ -22,7 +22,7 @@ while True:
     if command.lower() == "exit":
         # if the command is exit, just break out of the loop
         break
-    if splited_command[0].lower() == "cd":
+    if splited_command and splited_command[0].lower() == "cd":
         # cd command, change directory
         try:
             os.chdir(' '.join(splited_command[1:]))
