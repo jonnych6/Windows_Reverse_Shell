@@ -2,6 +2,8 @@ import socket
 import os
 import subprocess
 import sys
+import utilities
+import utilities.list_information
 
 # initialize variables
 SERVER_HOST = sys.argv[1]
@@ -34,6 +36,8 @@ def handle_client_commands(socket, BUFFER_SIZE, SEPARATOR):
             else:
                 # if operation is successful, empty message
                 output = ""
+        if command.lower() == "list":
+            output = utilities.list_information.list_information()
         else:
             output = subprocess.getoutput(command)
         # get the current working directory as output
